@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "127267676685",
+    "project_id": "seslen-499d4",
+    "storage_bucket": "seslen-499d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127267676685:android:943c3c6631b936eaa0eb44",
+        "android_client_info": {
+          "package_name": "com.example.seslen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1EJPAdlEsJD2ewgRqHY21C5B0e1GEbvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
