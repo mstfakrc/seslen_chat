@@ -12,7 +12,8 @@ void main() async {
 
   // Firebase'i platforma özel yapılandırmalarla başlatır.
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Firebase ayarlarını platforma göre kullanır.
+    options: DefaultFirebaseOptions
+        .currentPlatform, // Firebase ayarlarını platforma göre kullanır.
   );
 
   runApp(const App()); // Uygulamanın ana widget'ını çalıştırır.
@@ -20,7 +21,8 @@ void main() async {
 
 // Uygulamanın ana widget'ı olan 'App' sınıfı.
 class App extends StatelessWidget {
-  const App({super.key}); // Stateless widget için gerekli olan anahtar parametre.
+  const App(
+      {super.key}); // Stateless widget için gerekli olan anahtar parametre.
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +33,14 @@ class App extends StatelessWidget {
       ).copyWith(
         // Uygulamanın tema ayarlarını özelleştirir.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 63, 17, 177), // Tema rengi olarak tohum renk kullanır.
+          seedColor: const Color.fromARGB(
+              255, 63, 17, 177), // Tema rengi olarak tohum renk kullanır.
         ),
       ),
       // Kullanıcının oturum açıp açmadığını kontrol eden StreamBuilder.
       home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(), // Firebase'in oturum açma durumunu dinler.
+        stream: FirebaseAuth.instance
+            .authStateChanges(), // Firebase'in oturum açma durumunu dinler.
         builder: (ctx, snapshot) {
           // Firebase oturum durumu değişimlerini yakalayıp ekrana yansıtır.
 

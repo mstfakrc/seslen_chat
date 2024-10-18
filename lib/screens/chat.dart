@@ -9,21 +9,23 @@ import 'package:seslen/widgets/new_message.dart'; // Yeni mesaj giriş alanını
 
 // Chat ekranını temsil eden ana widget.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key}); // Stateful widget için gerekli olan anahtar parametre.
+  const ChatScreen(
+      {super.key}); // Stateful widget için gerekli olan anahtar parametre.
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState(); // State sınıfını oluşturur.
+  State<ChatScreen> createState() =>
+      _ChatScreenState(); // State sınıfını oluşturur.
 }
 
 // Chat ekranının durumunu yöneten sınıf.
 class _ChatScreenState extends State<ChatScreen> {
-
   // Push bildirimlerini yapılandıran fonksiyon.
   void setupPushNotifications() async {
-    final fcm = FirebaseMessaging.instance; // Firebase Mesajlaşma örneğini oluşturur.
+    final fcm =
+        FirebaseMessaging.instance; // Firebase Mesajlaşma örneğini oluşturur.
 
     await fcm.requestPermission(); // Kullanıcıdan bildirim izni talep eder.
-    
+
     // Bildirim token'ını almak için kullanılabilecek bir seçenek.
     //final token = await fcm.getToken();
     //print(token);
@@ -43,25 +45,71 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seslen'), // Uygulama başlığını "Seslen" olarak ayarlar.
+        toolbarHeight: 80, // AppBar yüksekliğini ayarlayın.
+        elevation: 10, // AppBar'a gölge ekler.
+        backgroundColor: Colors.transparent, // Arka plan rengini şeffaf yapar.
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.deepPurpleAccent, // Gradient başlangıç rengi.
+                Colors.purpleAccent, // Gradient bitiş rengi.
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20)), // Alt köşeleri yuvarlar.
+          ),
+        ),
+        title: Row(
+          mainAxisAlignment:
+              MainAxisAlignment.start, // Başlık ve logo hizalaması.
+          children: [
+            // Logo için yer ayırın.
+            Container(
+              margin: const EdgeInsets.only(
+                  right: 10), // Logo ile başlık arasında boşluk.
+              child: Image.asset(
+                'assets/images/chat.png', // Logonuzun dosya yolu.
+                height: 80, // Logo yüksekliği.
+              ),
+            ),
+            const Text(
+              'Sohbetçik', // Uygulama başlığı.
+              style: TextStyle(
+                fontSize: 26, // Başlık yazı boyutu.
+                fontWeight: FontWeight.bold, // Başlık kalın yazı.
+                color: Colors.white, // Başlık yazı rengi.
+                shadows: [
+                  Shadow(
+                    color: Colors.black54, // Başlık gölge rengi.
+                    offset: Offset(1, 1), // Gölgenin konumu.
+                    blurRadius: 3, // Gölgenin bulanıklığı.
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
-          // Sağ üst köşeye çıkış simgesi ekler.
           IconButton(
             onPressed: () {
               FirebaseAuth.instance.signOut(); // Kullanıcıyı oturumdan çıkarır.
             },
             icon: Icon(
               Icons.exit_to_app, // Çıkış ikonu.
-              color: Theme.of(context).colorScheme.primary, // Tema rengine göre ikon rengini ayarlar.
+              color: Colors.white, // İkon rengi beyaz.
             ),
-          )
+          ),
         ],
       ),
       body: Column(
         children: const [
           // Sohbet mesajlarını gösteren genişleyen widget.
           Expanded(
-            child: ChatMessages(), // ChatMessages widget'ı ile sohbet mesajlarını gösterir.
+            child:
+                ChatMessages(), // ChatMessages widget'ı ile sohbet mesajlarını gösterir.
           ),
           // Yeni mesaj giriş alanını gösteren widget.
           NewMessage(), // NewMessage widget'ı ile mesaj girişi sağlar.
@@ -69,7 +117,8 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-}
+} 
+
 
 /*import 'dart:ffi';
 import 'package:firebase_auth/firebase_auth.dart';
