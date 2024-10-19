@@ -7,6 +7,7 @@ import 'firebase_options.dart'; // Firebase yapılandırma ayarlarını içeren 
 import 'package:seslen/screens/auth.dart'; // AuthScreen'i içeren dosyayı import eder.
 
 void main() async {
+  
   // Uygulamayı başlatmadan önce Firebase'i başlatmak için Flutter'ın widget bağlama işlemlerini başlatır.
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -27,6 +28,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+       debugShowCheckedModeBanner: false,
       title: 'Seslen', // Uygulamanın başlık ismi.
       theme: ThemeData(
         useMaterial3: true, // Material Design 3 özelliklerini kullanır.

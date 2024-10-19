@@ -1,91 +1,110 @@
-import 'dart:ffi'; // Native FFI (Foreign Function Interface) kullanımı için gereken paket.
+import 'dart:ffi';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:seslen/widgets/chat_messages.dart';
+import 'package:seslen/widgets/new_message.dart';
 
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase kimlik doğrulama fonksiyonları için kullanılan paket.
-import 'package:firebase_core/firebase_core.dart'; // Firebase başlatma işlemleri için kullanılan paket.
-import 'package:firebase_messaging/firebase_messaging.dart'; // Firebase Push bildirimlerini yönetmek için kullanılan paket.
-import 'package:flutter/material.dart'; // Flutter widget'ları ve UI bileşenleri için gereken paket.
-import 'package:seslen/widgets/chat_messages.dart'; // Sohbet mesajlarını görüntüleyen widget'ı içeren dosya.
-import 'package:seslen/widgets/new_message.dart'; // Yeni mesaj giriş alanını içeren widget'ı içeren dosya.
-
-// Chat ekranını temsil eden ana widget.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen(
-      {super.key}); // Stateful widget için gerekli olan anahtar parametre.
+  const ChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() =>
-      _ChatScreenState(); // State sınıfını oluşturur.
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-// Chat ekranının durumunu yöneten sınıf.
 class _ChatScreenState extends State<ChatScreen> {
-  // Push bildirimlerini yapılandıran fonksiyon.
+  Color _backgroundColor = Colors.blue.shade100; // Başlangıç arka plan rengi
+  bool _isDarkMode = false; // Karanlık mod durumu
+
+  // Renk paletini tanımlıyoruz
+  final List<Map<String, dynamic>> _colors = [
+    {'name': 'Mavi', 'color': Colors.blue.shade100},
+    {'name': 'Yeşil', 'color': Colors.green.shade100},
+    {'name': 'Kırmızı', 'color': Colors.red.shade100},
+    {'name': 'Sarı', 'color': Colors.yellow.shade100},
+    {'name': 'Turuncu', 'color': Colors.orange.shade100},
+    {'name': 'Mor', 'color': Colors.purple.shade100},
+    {'name': 'Pembe', 'color': Colors.pink.shade100},
+    {'name': 'Gri', 'color': Colors.grey.shade300},
+    {'name': 'Kahverengi', 'color': Colors.brown.shade100},
+    {'name': 'Açık Mavi', 'color': Colors.lightBlue.shade100},
+  ];
+
   void setupPushNotifications() async {
-    final fcm =
-        FirebaseMessaging.instance; // Firebase Mesajlaşma örneğini oluşturur.
-
-    await fcm.requestPermission(); // Kullanıcıdan bildirim izni talep eder.
-
-    // Bildirim token'ını almak için kullanılabilecek bir seçenek.
-    //final token = await fcm.getToken();
-    //print(token);
-
-    // Kullanıcıyı 'chat' adlı konuya abone yapar, böylece bu konudan bildirim alır.
+    final fcm = FirebaseMessaging.instance;
+    await fcm.requestPermission();
     fcm.subscribeToTopic('chat');
   }
 
-  // Widget ilk oluşturulduğunda çağrılan fonksiyon.
   @override
   void initState() {
     super.initState();
-    setupPushNotifications(); // Bildirim ayarlarını ilk başta yapar.
+    setupPushNotifications();
+  }
+
+  // Temayı değiştiren fonksiyon
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode; // Modu değiştir
+      _backgroundColor = _isDarkMode
+          ? Colors.grey[850]!
+          : Colors.blue.shade100; // Arka plan rengi
+    });
+  }
+
+  // Seçilen rengi uygulamak için kullanılan fonksiyon
+  void _changeBackgroundColor(Color color) {
+    setState(() {
+      _backgroundColor = color; // Arka plan rengini değiştir
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80, // AppBar yüksekliğini ayarlayın.
-        elevation: 10, // AppBar'a gölge ekler.
-        backgroundColor: Colors.transparent, // Arka plan rengini şeffaf yapar.
+        toolbarHeight: 80, // AppBar'ın yüksekliği
+        elevation: 10, // AppBar'a gölge ekler
+        backgroundColor:
+            Colors.transparent, // AppBar arka plan rengini şeffaf yapar
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
+              // Arka plana gradyan efekti ekler
               colors: [
-                Colors.deepPurpleAccent, // Gradient başlangıç rengi.
-                Colors.purpleAccent, // Gradient bitiş rengi.
+                Colors.deepPurpleAccent, // Gradyanın başlangıç rengi
+                Colors.purpleAccent, // Gradyanın bitiş rengi
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              begin: Alignment.topLeft, // Gradyanın başlangıç noktası
+              end: Alignment.bottomRight, // Gradyanın bitiş noktası
             ),
-            borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20)), // Alt köşeleri yuvarlar.
+            // borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)), // Alt köşeleri yuvarlama, yorum satırında
           ),
         ),
         title: Row(
           mainAxisAlignment:
-              MainAxisAlignment.start, // Başlık ve logo hizalaması.
+              MainAxisAlignment.start, // Başlık ve logo hizalaması
           children: [
-            // Logo için yer ayırın.
             Container(
               margin: const EdgeInsets.only(
-                  right: 10), // Logo ile başlık arasında boşluk.
+                  right: 10), // Logo ile başlık arasında boşluk
               child: Image.asset(
-                'assets/images/chat.png', // Logonuzun dosya yolu.
-                height: 80, // Logo yüksekliği.
+                'assets/images/chat.png', // Logo dosya yolu
+                height: 80, // Logo yüksekliği
               ),
             ),
             const Text(
-              'Sohbetçik', // Uygulama başlığı.
+              'Sohbetçik', // Uygulama başlığı
               style: TextStyle(
-                fontSize: 26, // Başlık yazı boyutu.
-                fontWeight: FontWeight.bold, // Başlık kalın yazı.
-                color: Colors.white, // Başlık yazı rengi.
+                fontSize: 26, // Başlık yazı boyutu
+                fontWeight: FontWeight.bold, // Başlık kalın yazı
+                color: Colors.white, // Başlık yazı rengi
                 shadows: [
                   Shadow(
-                    color: Colors.black54, // Başlık gölge rengi.
-                    offset: Offset(1, 1), // Gölgenin konumu.
-                    blurRadius: 3, // Gölgenin bulanıklığı.
+                    color: Colors.black54, // Başlık gölge rengi
+                    offset: Offset(1, 1), // Gölgenin konumu
+                    blurRadius: 3, // Gölgenin bulanıklığı
                   ),
                 ],
               ),
@@ -93,31 +112,72 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
+          // Karanlık mod ve aydınlık mod ikonları
+          IconButton(
+            onPressed:
+                _toggleTheme, // Temayı değiştirmek için çağrılan fonksiyon
+            icon: Icon(
+              _isDarkMode // Karanlık mod aktifse
+                  ? Icons.wb_sunny // Aydınlık mod simgesi göster
+                  : Icons.nightlight_round, // Karanlık mod simgesi göster
+              color: Colors.white, // İkon rengi
+            ),
+          ),
+          // Renk paleti açılır menüsü
+          PopupMenuButton<Color>(
+            icon: Icon(Icons.palette, color: Colors.white), // Renk paleti ikonu
+            onSelected:
+                _changeBackgroundColor, // Renk seçildiğinde bu fonksiyon çağrılır
+            itemBuilder: (context) {
+              return _colors.map((colorInfo) {
+                // Renk listesinden öğeleri döner
+                return PopupMenuItem<Color>(
+                  value: colorInfo['color'], // Renk değeri
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20, // Renk kutusunun genişliği
+                        height: 20, // Renk kutusunun yüksekliği
+                        color: colorInfo['color'], // Renk kutusunun rengi
+                        margin: EdgeInsets.only(
+                            right: 8), // Renk kutusu ile yazı arasında boşluk
+                      ),
+                      Text(colorInfo['name']), // Renk ismi
+                    ],
+                  ),
+                );
+              }).toList(); // Renk öğelerini liste olarak döner
+            },
+          ),
           IconButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut(); // Kullanıcıyı oturumdan çıkarır.
+              FirebaseAuth.instance.signOut(); // Kullanıcıyı oturumdan çıkarır
             },
             icon: Icon(
-              Icons.exit_to_app, // Çıkış ikonu.
-              color: Colors.white, // İkon rengi beyaz.
+              Icons.exit_to_app, // Çıkış ikonu
+              color: Colors.white, // İkon rengi
             ),
           ),
         ],
       ),
-      body: Column(
-        children: const [
-          // Sohbet mesajlarını gösteren genişleyen widget.
-          Expanded(
-            child:
-                ChatMessages(), // ChatMessages widget'ı ile sohbet mesajlarını gösterir.
-          ),
-          // Yeni mesaj giriş alanını gösteren widget.
-          NewMessage(), // NewMessage widget'ı ile mesaj girişi sağlar.
-        ],
+      body: Container(
+        color: _backgroundColor, // Arka plan rengi
+        child: Column(
+          children: [
+            Expanded(
+              child: ChatMessages(), // Sohbet mesajlarını gösteren widget
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.all(8.0), // Yeni mesaj girişi için padding
+              child: NewMessage(), // Yeni mesaj girişi widget'ı
+            ),
+          ],
+        ),
       ),
     );
   }
-} 
+}
 
 
 /*import 'dart:ffi';

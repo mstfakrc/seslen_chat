@@ -1,7 +1,8 @@
 import 'dart:ffi'; // Firebase'in gerekli olmadığı bir durum, kaldırılabilir.
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore bağlantısı için gerekli paket.
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication için gerekli paket.
-import 'package:flutter/material.dart'; // Flutter'ın temel widget'ları için paket.
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Flutter'ın temel widget'ları için paket.
 
 // Yeni mesajın yazılacağı widget (NewMessage)
 class NewMessage extends StatefulWidget {
@@ -18,15 +19,18 @@ class _NewMessageState extends State<NewMessage> {
   // Mesaj metin kontrolcüsü, kullanıcının yazdığı mesajı takip eder.
   final _messageController = TextEditingController();
 
+  bool _isPressed = false; // Buton basılı mı kontrolü için
   @override
   void dispose() {
-    _messageController.dispose(); // Bellek sızıntısını önlemek için kontrolcü temizlenir.
+    _messageController
+        .dispose(); // Bellek sızıntısını önlemek için kontrolcü temizlenir.
     super.dispose();
   }
 
   // Mesaj gönderme fonksiyonu (Firebase Firestore ve Authentication ile bağlantı)
   void _submitMessage() async {
-    final enteredMessage = _messageController.text; // Kullanıcının yazdığı mesaj alınır.
+    final enteredMessage =
+        _messageController.text; // Kullanıcının yazdığı mesaj alınır.
 
     // Mesaj boşsa veya yalnızca boşluk karakterlerinden oluşuyorsa işlemi durdurur.
     if (enteredMessage.trim().isEmpty) {
@@ -60,24 +64,97 @@ class _NewMessageState extends State<NewMessage> {
     return Padding(
       // Mesaj kutusunun etrafına boşluk ekler (sol, sağ ve alt taraf).
       padding: const EdgeInsets.only(left: 15, right: 1, bottom: 14),
-      child: Row(
+      child: // Buton basılı mı kontrolü için
+
+          Row(
         children: [
           Expanded(
-            // Mesaj yazmak için metin kutusu
+            // Mesaj yazmak için şık bir metin kutusu
             child: TextField(
-              controller: _messageController, // Mesaj giriş kontrolcüsü atanır.
-              textCapitalization: TextCapitalization.sentences, // Cümle başında otomatik büyük harf yapar.
-              autocorrect: true, // Yazım hatalarını düzeltir.
-              enableSuggestions: true, // Kelime önerilerini açar.
-              decoration: const InputDecoration(labelText: 'send a message...'), // Giriş kutusunun içindeki etiket (placeholder)
+              controller: _messageController, // Mesaj giriş kontrolcüsü
+              textCapitalization: TextCapitalization
+                  .sentences, // Cümle başlarını otomatik büyük yapar
+              autocorrect: true, // Yazım hatalarını düzeltir
+              enableSuggestions: true, // Kelime önerilerini etkinleştirir
+              decoration: InputDecoration(
+                filled:
+                    true, // Arka planı doldurur, daha modern bir görünüm sağlar
+                fillColor: Colors.grey[200], // Hafif gri arka plan rengi
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 15), // İçerik etrafında boşluklar
+                labelText:
+                    'Send a message...', // Kullanıcıya mesaj girmesi için ipucu sağlar
+                labelStyle: TextStyle(
+                  color: Colors.grey[
+                      600], // Yazının daha şık ve pastel renkte görünmesini sağlar
+                  fontStyle: FontStyle
+                      .italic, // Etiket yazısına italik stil kazandırır
+                ),
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(30), // Köşeleri yuvarlatılmış sınır
+                  borderSide: BorderSide
+                      .none, // Kenarlık olmadan, sade bir görünüm sağlar
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(
+                      30), // Fokus olduğunda da köşeler yuvarlatılmış kalır
+                  borderSide: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary, // Fokus olduğunda ana temanın birincil rengine döner
+                  ),
+                ),
+              ),
             ),
           ),
-          IconButton(
-            color: Theme.of(context).colorScheme.primary, // Gönder butonunun rengi, uygulama temasına uygun şekilde ayarlanır.
-            icon: const Icon(
-              Icons.send, // Gönderme ikonu (ok işareti)
+          const SizedBox(
+              width:
+                  10), // Gönder butonu ile metin kutusu arasında boşluk bırakır
+          GestureDetector(
+            onTapDown: (_) {
+              setState(() {
+                _isPressed =
+                    true; // Butona basıldığında animasyonu tetikleyelim
+              });
+            },
+            onTapUp: (_) {
+              setState(() {
+                _isPressed = false; // Bırakıldığında eski haline döner
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 100), // Animasyon süresi
+              height: _isPressed ? 40 : 45, // Basıldığında buton boyutu küçülür
+              width: _isPressed ? 40 : 45, // Basıldığında genişlik küçülür
+              decoration: BoxDecoration(
+                color: _messageController.text.isEmpty
+                    ? Colors.grey // Mesaj kutusu boşsa buton gri olur
+                    : Theme.of(context)
+                        .colorScheme
+                        .primary, // Mesaj yazıldığında buton ana renk olur
+                shape: BoxShape.circle, // Buton yuvarlak olur
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26, // Hafif gölge eklenir
+                    blurRadius: 10, // Gölge yayılma etkisi
+                    offset: Offset(0, 4), // Gölgenin dikey konumlandırılması
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.send, // Gönderme ikonu
+                  color: Colors.white, // İkon rengi beyaz yapılır
+                ),
+                onPressed: _messageController.text.isEmpty
+                    ? null // Mesaj boşsa buton pasif olur
+                    : () {
+                        HapticFeedback.lightImpact(); // Hafif titreşim eklenir
+                        _submitMessage(); // Mesaj gönderme işlevi tetiklenir
+                      },
+              ),
             ),
-            onPressed: _submitMessage, // Butona tıklandığında mesaj gönderme işlemi tetiklenir.
           ),
         ],
       ),

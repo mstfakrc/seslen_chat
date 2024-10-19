@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 // Mesaj baloncuğu (MessageBubble) sohbet ekranında tek bir mesajı gösterir.
 class MessageBubble extends StatelessWidget {
@@ -6,19 +7,19 @@ class MessageBubble extends StatelessWidget {
   const MessageBubble.first({
     super.key,
     required this.userImage, // Kullanıcının profil resmi
-    required this.username,  // Kullanıcının adı
-    required this.message,   // Gönderilen mesaj içeriği
-    required this.isMe,      // Mesajı gönderen ben miyim?
+    required this.username, // Kullanıcının adı
+    required this.message, // Gönderilen mesaj içeriği
+    required this.isMe, // Mesajı gönderen ben miyim?
   }) : isFirstInSequence = true;
 
   // Bu yapıcı devam eden mesaj dizileri için bir mesaj baloncuğu oluşturur.
   const MessageBubble.next({
     super.key,
-    required this.message,   // Mesaj içeriği
-    required this.isMe,      // Mesajı gönderen ben miyim?
+    required this.message, // Mesaj içeriği
+    required this.isMe, // Mesajı gönderen ben miyim?
   })  : isFirstInSequence = false,
-        userImage = null,   // Kullanıcı resmi gerekli değil
-        username = null;    // Kullanıcı adı gerekli değil
+        userImage = null, // Kullanıcı resmi gerekli değil
+        username = null; // Kullanıcı adı gerekli değil
 
   // Aynı kullanıcıdan gelen ardışık mesajların ilki mi?
   // Mesaj baloncuğunun şekli ve görüntülenen öğeler bu duruma göre değişir.
@@ -38,7 +39,8 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Uygulamanın temasıyla renkleri uyumlu hale getirir
+    final theme =
+        Theme.of(context); // Uygulamanın temasıyla renkleri uyumlu hale getirir
 
     return Stack(
       children: [
@@ -47,12 +49,38 @@ class MessageBubble extends StatelessWidget {
           Positioned(
             top: 15, // Resmi balonun üst kısmına hizalar
             right: isMe ? 0 : null, // Mesaj bana aitse sağa hizalar
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                userImage!, // Kullanıcının profil resmi URL'den yüklenir
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: theme.colorScheme.onPrimary, // Sınır rengi
+                  width: 2, // Sınır genişliği
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1), // Gölgenin rengi
+                    blurRadius: 6, // Bulanıklık
+                    offset: Offset(2, 2), // Gölgenin konumu
+                  ),
+                ],
               ),
-              backgroundColor: theme.colorScheme.primary.withAlpha(180), // Hafif bir saydamlık efekti ekler
-              radius: 23, // Resim boyutunu ayarlar
+              child: CircleAvatar(
+                backgroundImage: userImage != null
+                    ? NetworkImage(
+                        userImage!) // Kullanıcının profil resmi URL'den yüklenir
+                    : AssetImage('assets/images/chat.png'), // Yer tutucu resim
+                backgroundColor: theme.colorScheme.primary
+                    .withAlpha(180), // Hafif bir saydamlık efekti ekler
+                radius: 25, // Resim boyutunu ayarlar
+                child: userImage == null
+                    ? Icon(
+                        Icons
+                            .person, // Kullanıcı resmi yoksa gösterilecek simge
+                        color: Colors.white, // Simgenin rengi
+                        size: 28, // Simgenin boyutu
+                      )
+                    : null, // Eğer kullanıcı resmi varsa simge göstermiyoruz
+              ),
             ),
           ),
         Container(
@@ -60,63 +88,145 @@ class MessageBubble extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 46),
           child: Row(
             // Mesajın ekranda gösterileceği tarafı ayarlar (sağ/sol)
-            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment:
+                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
               Column(
-                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   // İlk mesajlar dizisinde görsel boşluk sağlar
                   if (isFirstInSequence) const SizedBox(height: 18),
                   // Kullanıcı adı varsa, gösterir
                   if (username != null)
                     Padding(
-                      padding: const EdgeInsets.only(left: 13, right: 13),
-                      child: Text(
-                        username!, // Kullanıcı adını gösterir
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold, // Kalın font ile vurgular
-                          color: Colors.black87, // Siyah renkte gösterir
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 13), // Yatay boşluğu simetrik yapar
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors
+                              .grey[100], // Arka plana daha açık bir renk ekler
+                          borderRadius:
+                              BorderRadius.circular(12), // Kenarları yuvarlar
+                          border: Border.all(
+                            color: Colors
+                                .grey[300]!, // İnce bir çerçeve rengi ekler
+                            width: 1, // Çerçeve kalınlığı
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  Colors.black.withOpacity(0.1), // Gölge rengi
+                              blurRadius: 6, // Bulanıklık
+                              offset: Offset(2, 4), // Gölgenin konumu
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 14), // İç boşluk
+                        child: Row(
+                          mainAxisSize: MainAxisSize
+                              .min, // Satır boyutunu minimumda tutar
+                          children: [
+                            Icon(Icons.person,
+                                color:
+                                    Colors.black54), // Kullanıcı simgesi ekler
+                            const SizedBox(
+                                width: 8), // İkon ile metin arasında boşluk
+                            Text(
+                              username!
+                                  .toUpperCase(), // Kullanıcı adını büyük harflerle gösterir
+                              style: const TextStyle(
+                                fontWeight:
+                                    FontWeight.bold, // Kalın font ile vurgular
+                                color: Colors.black87, // Siyah renkte gösterir
+                                fontSize: 16, // Yazı boyutunu ayarlar
+                                letterSpacing:
+                                    1.5, // Harfler arasındaki boşluğu artırır
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+
                   // Mesajı çevreleyen konuşma baloncuğu (speech box)
+
+// intl paketini import ediyoruz
+
                   Container(
                     decoration: BoxDecoration(
                       // Mesaj balonunun arka plan rengini ayarlar
                       color: isMe
-                          ? Colors.grey[300] // Mesaj bana aitse gri renk kullanır
-                          : theme.colorScheme.secondary.withAlpha(200), // Diğer kişiden ise temadan renk alır
+                          ? Colors
+                              .grey[300] // Mesaj bana aitse gri renk kullanır
+                          : theme.colorScheme.secondary.withAlpha(
+                              200), // Diğer kişiden ise temadan renk alır
                       // Mesajın konuşma baloncuğunun şeklini ayarlar
                       borderRadius: BorderRadius.only(
                         topLeft: !isMe && isFirstInSequence
-                            ? Radius.zero // İlk mesaj ise balonun kenarını düz yapar
+                            ? Radius.zero
                             : const Radius.circular(12),
                         topRight: isMe && isFirstInSequence
-                            ? Radius.zero // İlk mesaj ise kenarı düz yapar
+                            ? Radius.zero
                             : const Radius.circular(12),
-                        bottomLeft: const Radius.circular(12), // Balonun alt kenarlarını yuvarlar
+                        bottomLeft: const Radius.circular(
+                            12), // Balonun alt kenarlarını yuvarlar
                         bottomRight: const Radius.circular(12),
                       ),
+                      // Gölgeli bir etki ekler
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              Colors.black.withOpacity(0.1), // Gölgenin rengi
+                          blurRadius: 5, // Bulanıklık
+                          offset: Offset(2, 2), // Gölgenin konumu
+                        ),
+                      ],
                     ),
                     // Mesaj balonunun genişlik sınırlamalarını ayarlar
-                    constraints: const BoxConstraints(maxWidth: 200),
+                    constraints: const BoxConstraints(
+                        maxWidth: 250), // Balonun maksimum genişliği artırıldı
                     padding: const EdgeInsets.symmetric(
-                      vertical: 10, // Dikey boşluk
-                      horizontal: 14, // Yatay boşluk
+                      vertical: 12, // Dikey boşluk artırıldı
+                      horizontal: 16, // Yatay boşluk artırıldı
                     ),
                     margin: const EdgeInsets.symmetric(
-                      vertical: 4, // Dikey margin
-                      horizontal: 12, // Yatay margin
+                      vertical: 6, // Dikey margin artırıldı
+                      horizontal: 14, // Yatay margin artırıldı
                     ),
-                    child: Text(
-                      message, // Mesaj metni
-                      style: TextStyle(
-                        height: 1.3, // Satır aralığını ayarlar (çok satırlı metinler için daha şık görünüm sağlar)
-                        color: isMe
-                            ? Colors.black87 // Mesaj bana aitse siyah renkte gösterir
-                            : theme.colorScheme.onSecondary, // Diğer kişiden ise temaya uygun renk kullanır
-                      ),
-                      softWrap: true, // Uzun metinlerin kaymasını sağlar
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Metin sola yaslı
+                      children: [
+                        Text(
+                          message, // Mesaj metni
+                          style: TextStyle(
+                            height: 1.4, // Satır aralığını ayarlar
+                            color: isMe
+                                ? Colors
+                                    .black87 // Mesaj bana aitse siyah renkte gösterir
+                                : theme.colorScheme
+                                    .onSecondary, // Diğer kişiden ise temaya uygun renk kullanır
+                            fontSize: 16, // Yazı boyutunu ayarlar
+                            fontWeight:
+                                FontWeight.w400, // Yazı kalınlığını ayarlar
+                          ),
+                          softWrap: true, // Uzun metinlerin kaymasını sağlar
+                        ),
+                        if (isMe) // Eğer mesaj bana aitse, zaman damgasını gösterir
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              DateFormat('HH:mm')
+                                  .format(DateTime.now()), // Zaman damgası
+                              style: TextStyle(
+                                fontSize: 12, // Daha küçük bir yazı boyutu
+                                color: Colors.grey[600], // Daha soluk bir renk
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ],
