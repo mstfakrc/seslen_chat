@@ -111,7 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     const SizedBox(
                         height: 10), // Logo ile metin arasında boşluk
                     Text(
-                      'SOHBETÇİK', // Uygulamanın adı
+                      'SESLEN', // Uygulamanın adı
                       style: TextStyle(
                         fontSize: 32, // Daha büyük yazı boyutu
                         fontWeight: FontWeight.bold, // Kalın yazı stili

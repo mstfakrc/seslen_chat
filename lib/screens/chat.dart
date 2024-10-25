@@ -95,7 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const Text(
-              'Sohbetçik', // Uygulama başlığı
+              'Seslen', // Uygulama başlığı
               style: TextStyle(
                 fontSize: 26, // Başlık yazı boyutu
                 fontWeight: FontWeight.bold, // Başlık kalın yazı
